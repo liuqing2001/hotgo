@@ -1,250 +1,129 @@
-// Package @{.templateGroup}
-// @Link  https://github.com/bufanyun/hotgo
-// @Copyright  Copyright (c) @{NowYear} HotGo CLI
-// @Author  Ms <133814250@qq.com>
-// @License  https://github.com/bufanyun/hotgo/blob/master/LICENSE
-// @AutoGenerate Version @{.hgVersion}
-//
-package @{.templateGroup}
+package @{.varName | ToLower}
 
 import (
 	"context"
-	"fmt"
-	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/gogf/gf/v2/util/gconv"
-	"hotgo/internal/dao"
-	"hotgo/internal/consts"
-	"hotgo/internal/library/contexts"
-	"hotgo/internal/library/hgorm"
-	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/hgorm/hook"
-	"@{.importInput}"
-	"hotgo/internal/model/input/form"
-	"@{.importService}"
-	"hotgo/utility/convert"
-	"hotgo/utility/excel"
-	"hotgo/utility/validate"
-	@{ if eq .options.Step.IsAddon true }isc "hotgo/internal/service"@{end}
-	@{ if eq .options.Step.IsTreeTable true }"hotgo/utility/tree"@{end}
-	@{ if eq .options.Step.HasFuncDict true }"hotgo/internal/library/dict"@{end}
-	@{ if eq .options.Step.HasFuncDict true }"hotgo/internal/model"@{end}
+	"zhongfang/internal/dao"
+	"zhongfang/internal/model"
+	"zhongfang/internal/model/entity"
+	"zhongfang/internal/service"
 )
 
-type s@{.servFunName} struct{}
-
-func New@{.servFunName}() *s@{.servFunName} {
-	return &s@{.servFunName}{}
-}
+type s@{.varName} struct{}
 
 func init() {
-	service.Register@{.servFunName}(New@{.servFunName}())
-	@{ if eq .options.Step.HasFuncDict true }dict.RegisterFunc("@{.varName | LcFirst}Option", "@{.tableComment}选项", service.@{.servFunName}().Option)@{end}}
-
-// Model @{.tableComment}ORM模型
-func (s *s@{.servFunName}) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
-	return handler.Model(dao.@{.daoName}.Ctx(ctx), option...)
+	service.Register@{.varName}(New())
 }
 
-// List 获取@{.tableComment}列表
-func (s *s@{.servFunName}) List(ctx context.Context, in *@{.templateGroup}in.@{.varName}ListInp) (list []*@{.templateGroup}in.@{.varName}ListModel, totalCount int, err error) {
-	mod := s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end})
-
-	// 字段过滤
-  @{.listFields}
-
-	@{ if ne .listJoin "" }
-  // 关联表字段
-  @{.listJoin}
-  @{end}
-
-@{.listWhere}
-
-@{ if eq .options.Step.IsTreeTable true }
-  // 树形列表判断是否需要分页
-	if in.Pagination {
-		mod = mod.Page(in.Page, in.PerPage)
-	}
-@{end}
-
-@{ if eq .options.Step.IsTreeTable false }
-  // 分页
-	mod = mod.Page(in.Page, in.PerPage)
-@{end}
-
-	// 排序
-	mod = mod.@{.listOrder}
-
-@{ if eq .options.Step.HasHookMemberSummary true }
-	// 操作人摘要信息
-	mod = mod.Hook(hook.MemberSummary)
-@{end}
-
-	// 查询数据
-    if err = mod.ScanAndCount(&list, &totalCount, false);err != nil {
-		err = gerror.Wrap(err, "获取@{.tableComment}列表失败，请稍后重试！")
-		return
-    }
-	return
+func New() *s@{.varName} {
+	return &s@{.varName}{}
 }
 
-@{ if eq .options.Step.HasExport true }
-// Export 导出@{.tableComment}
-func (s *s@{.servFunName}) Export(ctx context.Context, in *@{.templateGroup}in.@{.varName}ListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
-	if err != nil {
-		return
+// 获取@{.tableComment}列表
+func (s *s@{.varName}) @{.varName}List(ctx context.Context, in model.@{.varName}ListInput) (out *model.@{.varName}ListOutput, err error) {
+	//1.获得*gdb.Model对象，方便后续调用
+	m := dao.T@{.varName}.Ctx(ctx).Where("is_active", 1)
+	cols := dao.T@{.varName}.Columns()
+
+	//2. 实例化响应结构体
+	out = &model.@{.varName}ListOutput{
+		CommonPaginationRes: model.CommonPaginationRes{
+			Page: in.Page,
+			Size: in.Size,
+		},
 	}
 
-	// 字段的排序是依据tags的字段顺序，如果你不想使用默认的排序方式，可以直接定义 tags = []string{"字段名称", "字段名称2", ...}
-	tags, err := convert.GetEntityDescTags(@{.templateGroup}in.@{.varName}ExportModel{})
-	if err != nil {
-		return
+    @{.listWhere}
+
+	//3. 分页查询
+	listModel := m.Page(in.Page, in.Size)
+	//4. 再查询count，判断有无数据
+	out.Total, err = m.Count()
+	if err != nil || out.Total == 0 {
+		//解决空数据返回[] 而不是返回nil null的问题
+		out.List = make([]*model.@{.varName}Base, 0)
+		return out, err
+	}
+	//5. 延迟初始化list切片 确定有数据，再按期望大小初始化切片容量
+	out.List = make([]*model.@{.varName}Base, 0, out.Total)
+	//6. 把查询到的结果赋值到响应结构体中
+	if err := listModel.Scan(&out.List); err != nil {
+		return out, err
 	}
 
-	var (
-		fileName  = "导出@{.tableComment}-" + gctx.CtxId(ctx)
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []@{.templateGroup}in.@{.varName}ExportModel
-	)
-
-	if err = gconv.Scan(list, &exports);err != nil {
-		return
-	}
-
-    err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
-	return
-}@{end}
-
-@{ if eq .options.Step.HasEdit true }
-// Edit 修改/新增@{.tableComment}
-func (s *s@{.servFunName}) Edit(ctx context.Context, in *@{.templateGroup}in.@{.varName}EditInp) (err error) {
-@{.edit.unique}	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		@{ if eq .options.Step.IsTreeTable true }in.Pid, in.Level, in.Tree, err = hgorm.AutoUpdateTree(ctx, &dao.@{.daoName}, in.@{.pk.GoName}, in.Pid)
-		if err != nil {
-			return err
-		}@{end}
-		// 修改
-		if in.@{.pk.GoName} > 0 {
-	@{.edit.update}
-		}
-
-		// 新增
-	@{.edit.insert}
-		return
-	})
+	return out, err
 }
-@{end}
-
-@{ if eq .options.Step.HasDel true }
-// Delete 删除@{.tableComment}
-func (s *s@{.servFunName}) Delete(ctx context.Context, in *@{.templateGroup}in.@{.varName}DeleteInp) (err error) {
-	@{ if eq .options.Step.IsTreeTable true }count, err := dao.@{.daoName}.Ctx(ctx).Where(dao.@{.daoName}.Columns().Pid, in.@{.pk.GoName}).Count()
-	if err != nil {
-		err = gerror.Wrap(err, consts.ErrorORM)
-		return err
-	}
-	if count > 0 {
-		return gerror.New("请先删除该@{.tableComment}下的所有下级！")
-	}@{end}
-	if _, err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).WherePri(in.@{.pk.GoName}).Delete();err != nil {
-		err = gerror.Wrap(err, "删除@{.tableComment}失败，请稍后重试！")
-    	return
-	}
-	return
-}@{end}
-
-@{ if and (eq .options.Step.HasEdit true) (eq .options.Step.HasMaxSort true) }
-// MaxSort 获取@{.tableComment}最大排序
-func (s *s@{.servFunName}) MaxSort(ctx context.Context, in *@{.templateGroup}in.@{.varName}MaxSortInp) (res *@{.templateGroup}in.@{.varName}MaxSortModel, err error) {
-	if err = dao.@{.daoName}.Ctx(ctx).Fields(dao.@{.daoName}.Columns().Sort).OrderDesc(dao.@{.daoName}.Columns().Sort).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取@{.tableComment}最大排序，请稍后重试！")
-		return
-	}
-
-	if res == nil {
-		res = new(@{.templateGroup}in.@{.varName}MaxSortModel)
-	}
-
-	res.Sort = form.DefaultMaxSort(res.Sort)
-	return
-}
-@{end}
 
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
-// View 获取@{.tableComment}指定信息
-func (s *s@{.servFunName}) View(ctx context.Context, in *@{.templateGroup}in.@{.varName}ViewInp) (res *@{.templateGroup}in.@{.varName}ViewModel, err error) {
-    if err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).WherePri(in.@{.pk.GoName})@{ if eq .options.Step.HasHookMemberSummary true }.Hook(hook.MemberSummary)@{end}.Scan(&res);err != nil {
-		err = gerror.Wrap(err, "获取@{.tableComment}信息，请稍后重试！")
-		return
-    }
-	return
-}@{end}
+// 获取@{.tableComment}详情
+func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varName}DetailInput) (out *model.@{.varName}DetailOutput, err error) {
 
-@{ if eq .options.Step.HasStatus true }
-// Status 更新@{.tableComment}状态
-func (s *s@{.servFunName}) Status(ctx context.Context, in *@{.templateGroup}in.@{.varName}StatusInp) (err error) {
-	if _, err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).WherePri(in.@{.pk.GoName}).Data(@{.statusUpdate}).Update();err != nil {
-		err = gerror.Wrap(err, "更新@{.tableComment}状态失败，请稍后重试！")
-		return
+	// 初始化输出结构体
+	out = &model.@{.varName}DetailOutput{}
+	// 主馆信息
+	m := dao.T@{.varName}.Ctx(ctx).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id)
+	err = m.Scan(new(model.@{.varName}DetailView))
+	if err != nil {
+		return nil, err
 	}
-	return
+
+	return out, nil
 }
 @{end}
 
-@{ if eq .options.Step.HasSwitch true }
-// Switch 更新@{.tableComment}开关
-func (s *s@{.servFunName}) Switch(ctx context.Context, in *@{.templateGroup}in.@{.varName}SwitchInp) (err error) {
-	var fields = []string{
-@{.switchFields}		// ...
+@{ if eq .options.Step.HasEdit true }
+// 编辑/新增@{.tableComment}
+func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}EditInput) (out *model.@{.varName}EditOutput, err error) {
+	if in.@{.varName}Id > 0 { // 修改
+		if _, err = dao.T@{.varName}.Ctx(ctx).Data(in).OmitEmpty().WherePri(in.@{.varName}Id).Update(); err != nil {
+			err = gerror.Wrap(err, "修改失败，请稍后重试！")
+		}
+
+		return &model.@{.varName}EditOutput{@{.varName}Id: in.@{.varName}Id}, nil
+	}
+	// 插入主博物馆数据并获取ID
+	lastInsertID, err := dao.T@{.varName}.Ctx(ctx).Data(in).InsertAndGetId()
+	if err != nil {
+		return out, err
 	}
 
-	if !validate.InSlice(fields, in.Key) {
-		err = gerror.New("开关键名不在白名单")
-		return
-	}
-
-	if _, err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).WherePri(in.@{.pk.GoName}).Data(@{.switchUpdate}).Update();err != nil {
-		err = gerror.Wrap(err, "更新@{.tableComment}开关失败，请稍后重试！")
-		return
-	}
-	return
+	return &model.@{.varName}EditOutput{@{.varName}Id: int(lastInsertID)}, nil
 }
 @{end}
 
-@{ if eq .options.Step.IsTreeTable true }
-// TreeOption 获取@{.tableComment}关系树选项
-func (s *s@{.servFunName}) TreeOption(ctx context.Context) (nodes []tree.Node, err error) {
-	var models []*@{.templateGroup}in.@{.varName}TreeOption
-	if err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).Fields(@{.templateGroup}in.@{.varName}TreeOption{}).OrderAsc(dao.@{.daoName}.Columns().Pid).@{.listOrder}.Scan(&models); err != nil {
-		err = gerror.Wrap(err, "获取@{.tableComment}关系树选项失败！")
-		return
+// 获取@{.tableComment}状态
+func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varName}StatusInput) (err error) {
+	var @{.varName | ToLower} *entity.T@{.varName}
+	err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&@{.varName | ToLower})
+
+	if err != nil {
+		return err
 	}
-	nodes = make([]tree.Node, len(models))
-	for i, v := range models {
-		nodes[i] = v
+
+	var val int
+
+	switch in.Field {
+	case "open":
+		val = muse.IsOpen
 	}
-	return tree.ListToTree(0, nodes)
+
+	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
+		"is_" + in.Field: val ^ 1,
+	}).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id).Update()
+
+	return err
 }
-@{end}
 
-@{ if eq .options.Step.HasFuncDict true }
-// Option 获取@{.tableComment}选项
-func (s *s@{.servFunName}) Option(ctx context.Context) (opts []*model.Option, err error) {
-	var models []*entity.@{.daoName}
-	if err = s.Model(ctx@{ if eq .options.Step.HasNotFilterAuth true } ,&handler.Option{FilterAuth: false}@{end}).Fields(dao.@{.daoName}.Columns().@{.options.FuncDict.Value.GoName},dao.@{.daoName}.Columns().@{.options.FuncDict.Label.GoName}).
-	@{.listOrder}.Scan(&models); err != nil {
-		err = gerror.Wrap(err, "获取@{.tableComment}选项失败！")
-		return
-	}
 
-	opts = make([]*model.Option, len(models))
-	for k, v := range models {
-		opts[k] = dict.GenHashOption(v.@{.options.FuncDict.Value.GoName}, gconv.String(v.@{.options.FuncDict.Label.GoName}))
-	}
-	return
+@{ if eq .options.Step.HasDel true }
+// 获取@{.tableComment}删除
+func (s *s@{.varName}) @{.varName}Delete(ctx context.Context, in model.@{.varName}DeleteInput) (err error) {
+
+	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
+		"is_active": 0,
+	}).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id).Update()
+
+	return err
 }
 @{end}

@@ -1,109 +1,94 @@
-// Package @{.templateGroup}
-// @Link  https://github.com/bufanyun/hotgo
-// @Copyright  Copyright (c) @{NowYear} HotGo CLI
-// @Author  Ms <133814250@qq.com>
-// @License  https://github.com/bufanyun/hotgo/blob/master/LICENSE
-// @AutoGenerate Version @{.hgVersion}
-//
-package @{.templateGroup}
+package admin
 
 import (
 	"context"
-	"@{.importApi}"
-	"hotgo/internal/model/input/form"
-	"@{.importInput}"
-	"@{.importService}"
-	"hotgo/utility/validate"
+	"zhongfang/api/admin"
+	"zhongfang/internal/model"
+	"zhongfang/internal/service"
 )
 
-var (
-	@{.varName} = c@{.varName}{}
-)
+var @{.varName}Controller = new(@{.varName | ToLower}Controller)
 
-type c@{.varName} struct{}
+type @{.varName | ToLower}Controller struct{}
 
-// List 查看@{.tableComment}列表
-func (c *c@{.varName}) List(ctx context.Context, req *@{.varName | ToLower}.ListReq) (res *@{.varName | ToLower}.ListRes, err error) {
-	list, totalCount, err := service.@{.servFunName}().List(ctx, &req.@{.varName}ListInp)
+// @{.tableComment}列表
+func (c *@{.varName | ToLower}Controller) List(ctx context.Context, req *admin.@{.varName}ListReq) (res *admin.@{.varName}ListRes, err error) {
+	getListRes, err := service.@{.varName}().@{.varName}List(ctx, req.@{.varName}ListInput)
+
 	if err != nil {
-		return
-	}
-	
-	if list == nil {
-		list = []*@{.templateGroup}in.@{.varName}ListModel{}
-    }
-
-	res = new(@{.varName | ToLower}.ListRes)
-	res.List = list
-	res.PageRes.Pack(req, totalCount)
-	return
-}
-@{ if eq .options.Step.HasExport true }
-// Export 导出@{.tableComment}列表
-func (c *c@{.varName}) Export(ctx context.Context, req *@{.varName | ToLower}.ExportReq) (res *@{.varName | ToLower}.ExportRes, err error) {
-    err = service.@{.servFunName}().Export(ctx, &req.@{.varName}ListInp)
-	return
-}
-@{end}
-@{ if eq .options.Step.HasEdit true }
-// Edit 更新@{.tableComment}
-func (c *c@{.varName}) Edit(ctx context.Context, req *@{.varName | ToLower}.EditReq) (res *@{.varName | ToLower}.EditRes, err error) {
-    err = service.@{.servFunName}().Edit(ctx, &req.@{.varName}EditInp)
-	return
-}
-@{end}
-@{ if and (eq .options.Step.HasEdit true) (eq .options.Step.HasMaxSort true) }
-// MaxSort 获取@{.tableComment}最大排序
-func (c *c@{.varName}) MaxSort(ctx context.Context, req *@{.varName | ToLower}.MaxSortReq) (res *@{.varName | ToLower}.MaxSortRes, err error) {
-	data, err := service.@{.servFunName}().MaxSort(ctx, &req.@{.varName}MaxSortInp)
-	if err != nil {
-		return
+		return nil, err
 	}
 
-	res = new(@{.varName | ToLower}.MaxSortRes)
-	res.@{.varName}MaxSortModel = data
-	return
+	return &admin.@{.varName}ListRes{
+		@{.varName}ListOutput: model.@{.varName}ListOutput{
+			List: getListRes.List,
+			CommonPaginationRes: model.CommonPaginationRes{
+				Page:  getListRes.Page,
+				Size:  getListRes.Size,
+				Total: getListRes.Total,
+			},
+		},
+	}, err
 }
-@{end}
+
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
-// View 获取指定@{.tableComment}信息
-func (c *c@{.varName}) View(ctx context.Context, req *@{.varName | ToLower}.ViewReq) (res *@{.varName | ToLower}.ViewRes, err error) {
-	data, err := service.@{.servFunName}().View(ctx, &req.@{.varName}ViewInp)
+// @{.tableComment}详情
+func (c *@{.varName | ToLower}Controller) Detail(ctx context.Context, req *admin.@{.varName}DetailReq) (res *admin.@{.varName}DetailRes, err error) {
+	out, err := service.@{.varName}().@{.varName}Detail(ctx, model.@{.varName}DetailInput{
+		@{.varName}Id: req.@{.varName}Id,
+	})
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	res = new(@{.varName | ToLower}.ViewRes)
-	res.@{.varName}ViewModel = data
-	return
+	// 构建响应
+	res = &admin.@{.varName}DetailRes{
+		@{.varName}: out.@{.varName},
+	}
+
+	return res, nil
 }
 @{end}
+
+@{ if eq .options.Step.HasEdit true }
+// @{.tableComment}修改/新增
+func (c *@{.varName | ToLower}Controller) Edit(ctx context.Context, req *admin.@{.varName}EditReq) (res *admin.@{.varName}EditRes, err error) {
+	// 调用服务层的 @{.varName}Edit 方法
+	out, err := service.@{.varName}().@{.varName}Edit(ctx, req.@{.varName}EditInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// 返回结果
+	return &admin.@{.varName}EditRes{@{.varName}Id: out.@{.varName}Id}, nil
+}
+@{end}
+
+// @{.tableComment}状态
+func (c *@{.varName | ToLower}Controller) Status(ctx context.Context, req *admin.@{.varName}StatusReq) (res *admin.@{.varName}StatusRes, err error) {
+	err = service.@{.varName}().@{.varName}Status(ctx, model.@{.varName}StatusInput{
+		@{.varName}Id: req.@{.varName}Id,
+		Field:       req.Field,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin.@{.varName}StatusRes{}, nil
+}
+
 @{ if eq .options.Step.HasDel true }
-// Delete 删除@{.tableComment}
-func (c *c@{.varName}) Delete(ctx context.Context, req *@{.varName | ToLower}.DeleteReq) (res *@{.varName | ToLower}.DeleteRes, err error) {
-    err = service.@{.servFunName}().Delete(ctx, &req.@{.varName}DeleteInp)
-	return
-}
-@{end}
-@{ if eq .options.Step.HasStatus true }
-// Status 更新@{.tableComment}状态
-func (c *c@{.varName}) Status(ctx context.Context, req *@{.varName | ToLower}.StatusReq) (res *@{.varName | ToLower}.StatusRes, err error) {
-    err = service.@{.servFunName}().Status(ctx, &req.@{.varName}StatusInp)
-	return
-}
-@{end}
-@{ if eq .options.Step.HasSwitch true }
-// Switch 更新@{.tableComment}开关状态
-func (c *c@{.varName}) Switch(ctx context.Context, req *@{.varName | ToLower}.SwitchReq) (res *@{.varName | ToLower}.SwitchRes, err error) {
-    err = service.@{.servFunName}().Switch(ctx, &req.@{.varName}SwitchInp)
-	return
-}
-@{end}
-@{ if eq .options.Step.IsTreeTable true }
-// TreeOption 获取@{.tableComment}关系树选项
-func (c *c@{.varName}) TreeOption(ctx context.Context, req *@{.varName | ToLower}.TreeOptionReq) (res *@{.varName | ToLower}.TreeOptionRes, err error) {
-    data, err := service.@{.servFunName}().TreeOption(ctx)
-    res = (*@{.varName | ToLower}.TreeOptionRes)(&data)
-	return
+// @{.tableComment}删除
+func (c *@{.varName | ToLower}Controller) Delete(ctx context.Context, req *admin.@{.varName}DeleteReq) (res *admin.@{.varName}DeleteRes, err error) {
+	err = service.@{.varName}().@{.varName}Delete(ctx, model.@{.varName}DeleteInput{
+		@{.varName}Id: req.@{.varName}Id,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin.@{.varName}DeleteRes{}, nil
 }
 @{end}

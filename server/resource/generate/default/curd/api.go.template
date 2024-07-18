@@ -2,7 +2,7 @@ package admin
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"zhongfang/internal/model"
+	"goteamforlq/internal/model"
 )
 
 // @{.varName}ListReq 查询@{.tableComment}列表

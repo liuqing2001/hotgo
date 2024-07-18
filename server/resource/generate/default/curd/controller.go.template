@@ -2,9 +2,9 @@ package admin
 
 import (
 	"context"
-	"zhongfang/api/admin"
-	"zhongfang/internal/model"
-	"zhongfang/internal/service"
+	"goteamforlq/api/admin"
+	"goteamforlq/internal/model"
+	"goteamforlq/internal/service"
 )
 
 var @{.varName}Controller = new(@{.varName | ToLower}Controller)

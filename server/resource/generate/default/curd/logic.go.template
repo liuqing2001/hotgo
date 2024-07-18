@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"zhongfang/internal/dao"
-	"zhongfang/internal/model"
-	"zhongfang/internal/model/entity"
-	"zhongfang/internal/service"
+	"goteamforlq/internal/dao"
+	"goteamforlq/internal/model"
+	"goteamforlq/internal/model/entity"
+	"goteamforlq/internal/service"
 )
 
 type s@{.varName} struct{}

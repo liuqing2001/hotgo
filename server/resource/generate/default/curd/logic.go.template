@@ -61,7 +61,6 @@ func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varNam
 
 	// 初始化输出结构体
 	out = &model.@{.varName}DetailOutput{}
-	// 主馆信息
 	m := dao.T@{.varName}.Ctx(ctx).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id)
 	err = m.Scan(new(model.@{.varName}DetailView))
 	if err != nil {
@@ -82,7 +81,6 @@ func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}
 
 		return &model.@{.varName}EditOutput{@{.varName}Id: in.@{.varName}Id}, nil
 	}
-	// 插入主博物馆数据并获取ID
 	lastInsertID, err := dao.T@{.varName}.Ctx(ctx).Data(in).InsertAndGetId()
 	if err != nil {
 		return out, err

@@ -6,13 +6,13 @@ type @{.varName}Base struct {
 
 
 // @{.varName}ListInput 获取@{.tableComment}列表
-type @{.varName}ListInp struct {
+type @{.varName}ListInput struct {
 	CommonPaginationReq
 @{.listInpColumns}
 }
 
 // @{.varName}ListOutput 获取@{.tableComment}列表
-type @{.varName}ListInp struct {
+type @{.varName}ListOutput struct {
     CommonPaginationRes
     List []*@{.varName}Base `json:"list" description:"列表"` // 这里使用指针类，修改结构体值
 @{.listInpColumns}

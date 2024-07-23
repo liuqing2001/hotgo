@@ -62,7 +62,7 @@ func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varNam
 	// 初始化输出结构体
 	out = &model.@{.varName}DetailOutput{}
 	m := dao.T@{.varName}.Ctx(ctx).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id)
-	err = m.Scan(new(model.@{.varName}DetailView))
+	err = m.Scan(out)
 	if err != nil {
 		return nil, err
 	}

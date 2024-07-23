@@ -42,9 +42,7 @@ func (c *@{.varName | ToLower}Controller) Detail(ctx context.Context, req *admin
 	}
 
 	// 构建响应
-	res = &admin.@{.varName}DetailRes{
-		@{.varName}: out.@{.varName},
-	}
+	res = &admin.@{.varName}DetailRes{@{.varName}DetailOutput: out}
 
 	return res, nil
 }

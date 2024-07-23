@@ -26,10 +26,6 @@ type @{.varName}DetailInput struct {
 
 // @{.varName}DetailOutput @{.tableComment}详情输出
 type @{.varName}DetailOutput struct {
-	@{.varName} @{.varName}DetailView
-}
-
-type @{.varName}DetailView struct {
 	@{.varName}Base
 }
 @{end}

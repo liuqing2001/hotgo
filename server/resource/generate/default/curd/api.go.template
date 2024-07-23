@@ -23,7 +23,7 @@ type @{.varName}DetailReq struct {
 }
 
 type @{.varName}DetailRes struct {
-	@{.varName} model.@{.varName}DetailView `json:"@{.varName} "`
+	*model.@{.varName}DetailOutput
 }
 @{end}
 

@@ -13,10 +13,10 @@ import (
 type s@{.varName} struct{}
 
 func init() {
-	service.Register@{.varName}(New())
+	service.Register@{.varName}(New@{.varName}())
 }
 
-func New() *s@{.varName} {
+func New@{.varName}() *s@{.varName} {
 	return &s@{.varName}{}
 }
 

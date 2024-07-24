@@ -92,18 +92,20 @@ func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}
 
 // @{.varName}Status 获取@{.tableComment}状态
 func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varName}StatusInput) (err error) {
-	var @{.varName | LcFirst} *entity.T@{.varName}
-	err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&@{.varName | LcFirst})
+    var models *entity.T@{.varName}
+    if err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&models); err != nil {
+        return
+    }
 
-	if err != nil {
-		return err
-	}
+    if models == nil {
+        return gerror.New("数据不存在或已删除！")
+    }
 
 	var val int
 
 	switch in.Field {
 	case "open":
-		val = @{.varName | LcFirst}.IsOpen
+		val = models.IsOpen
 	}
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
@@ -117,6 +119,14 @@ func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varNam
 @{ if eq .options.Step.HasDel true }
 // @{.varName}Delete 获取@{.tableComment}删除
 func (s *s@{.varName}) @{.varName}Delete(ctx context.Context, in model.@{.varName}DeleteInput) (err error) {
+    var models *entity.T@{.varName}
+    if err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&models); err != nil {
+        return
+    }
+
+    if models == nil {
+        return gerror.New("数据不存在或已删除！")
+    }
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
 		"is_active": 0,

@@ -20,7 +20,7 @@ func New() *s@{.varName} {
 	return &s@{.varName}{}
 }
 
-// 获取@{.tableComment}列表
+// @{.varName}List 获取@{.tableComment}列表
 func (s *s@{.varName}) @{.varName}List(ctx context.Context, in model.@{.varName}ListInput) (out *model.@{.varName}ListOutput, err error) {
 	//1.获得*gdb.Model对象，方便后续调用
 	m := dao.T@{.varName}.Ctx(ctx).Where("is_active", 1)
@@ -56,7 +56,7 @@ func (s *s@{.varName}) @{.varName}List(ctx context.Context, in model.@{.varName}
 }
 
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
-// 获取@{.tableComment}详情
+// @{.varName}Detail 获取@{.tableComment}详情
 func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varName}DetailInput) (out *model.@{.varName}DetailOutput, err error) {
 
 	// 初始化输出结构体
@@ -72,7 +72,7 @@ func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varNam
 @{end}
 
 @{ if eq .options.Step.HasEdit true }
-// 编辑/新增@{.tableComment}
+// @{.varName}Edit 编辑/新增@{.tableComment}
 func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}EditInput) (out *model.@{.varName}EditOutput, err error) {
 	if in.@{.varName}Id > 0 { // 修改
 		if _, err = dao.T@{.varName}.Ctx(ctx).Data(in).OmitEmpty().WherePri(in.@{.varName}Id).Update(); err != nil {
@@ -90,7 +90,7 @@ func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}
 }
 @{end}
 
-// 获取@{.tableComment}状态
+// @{.varName}Status 获取@{.tableComment}状态
 func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varName}StatusInput) (err error) {
 	var @{.varName | LcFirst} *entity.T@{.varName}
 	err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&@{.varName | LcFirst})
@@ -115,7 +115,7 @@ func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varNam
 
 
 @{ if eq .options.Step.HasDel true }
-// 获取@{.tableComment}删除
+// @{.varName}Delete 获取@{.tableComment}删除
 func (s *s@{.varName}) @{.varName}Delete(ctx context.Context, in model.@{.varName}DeleteInput) (err error) {
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{

@@ -92,8 +92,8 @@ func (s *s@{.varName}) @{.varName}Edit(ctx context.Context, in model.@{.varName}
 
 // 获取@{.tableComment}状态
 func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varName}StatusInput) (err error) {
-	var @{.varName | ToLower} *entity.T@{.varName}
-	err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&@{.varName | ToLower})
+	var @{.varName | LcFirst} *entity.T@{.varName}
+	err = dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id).Scan(&@{.varName | LcFirst})
 
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varNam
 
 	switch in.Field {
 	case "open":
-		val = muse.IsOpen
+		val = @{.varName | LcFirst}.IsOpen
 	}
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{

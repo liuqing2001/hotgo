@@ -16,7 +16,7 @@ type @{.varName}ListRes struct {
 }
 
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
-// DetailReq 获取@{.tableComment}指定信息
+// @{.varName}DetailReq 获取@{.tableComment}指定信息
 type @{.varName}DetailReq struct {
 	g.Meta `path:"/detail" method:"get" tags:"@{.tableComment}" summary:"获取@{.tableComment}指定信息"`
 	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空"`
@@ -39,7 +39,7 @@ type @{.varName}EditRes struct{
 }
 @{end}
 
-// StatusReq 更新@{.tableComment}状态
+// @{.varName}StatusReq 更新@{.tableComment}状态
 type @{.varName}StatusReq struct {
 	g.Meta `path:"/status" method:"post" tags:"@{.tableComment}" summary:"更新@{.tableComment}状态"`
 	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空"`

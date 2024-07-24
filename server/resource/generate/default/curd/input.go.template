@@ -21,7 +21,7 @@ type @{.varName}ListOutput struct {
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
 // @{.varName}DetailInput @{.tableComment}详情输入
 type @{.varName}DetailInput struct {
-	@{.varName}Id int `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
 }
 
 // @{.varName}DetailOutput @{.tableComment}详情输出
@@ -44,19 +44,19 @@ type @{.varName}EditOutput struct {
 
 // @{.varName}StatusInput 状态@{.tableComment} 输入
 type @{.varName}StatusInput struct {
-	@{.varName}Id int  `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
+	@{.varName}Id int  `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
 	Field       string `json:"field" v:"required#状态字段不能为空" dc:"状态字段"`
 }
 
 // @{.varName}StatusOutput 状态@{.tableComment} 输出
 type @{.varName}StatusOutput struct {
-	@{.varName}Id int `json:"museum_id"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id"`
 }
 
 @{ if eq .options.Step.HasDel true }
 // @{.varName}DeleteInput 删除@{.tableComment} 输入
 type @{.varName}DeleteInput struct {
-	@{.varName}Id int `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空" dc:"@{.tableComment}ID"`
 }
 
 // @{.varName}DeleteOutput 删除@{.tableComment} 输出

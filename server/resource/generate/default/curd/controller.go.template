@@ -7,12 +7,12 @@ import (
 	"goteamforlq/internal/service"
 )
 
-var @{.varName}Controller = new(@{.varName | ToLower}Controller)
+var @{.varName}Controller = new(@{.varName | LcFirst}Controller)
 
-type @{.varName | ToLower}Controller struct{}
+type @{.varName | LcFirst}Controller struct{}
 
 // @{.tableComment}列表
-func (c *@{.varName | ToLower}Controller) List(ctx context.Context, req *admin.@{.varName}ListReq) (res *admin.@{.varName}ListRes, err error) {
+func (c *@{.varName | LcFirst}Controller) List(ctx context.Context, req *admin.@{.varName}ListReq) (res *admin.@{.varName}ListRes, err error) {
 	getListRes, err := service.@{.varName}().@{.varName}List(ctx, req.@{.varName}ListInput)
 
 	if err != nil {
@@ -33,7 +33,7 @@ func (c *@{.varName | ToLower}Controller) List(ctx context.Context, req *admin.@
 
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
 // @{.tableComment}详情
-func (c *@{.varName | ToLower}Controller) Detail(ctx context.Context, req *admin.@{.varName}DetailReq) (res *admin.@{.varName}DetailRes, err error) {
+func (c *@{.varName | LcFirst}Controller) Detail(ctx context.Context, req *admin.@{.varName}DetailReq) (res *admin.@{.varName}DetailRes, err error) {
 	out, err := service.@{.varName}().@{.varName}Detail(ctx, model.@{.varName}DetailInput{
 		@{.varName}Id: req.@{.varName}Id,
 	})
@@ -50,7 +50,7 @@ func (c *@{.varName | ToLower}Controller) Detail(ctx context.Context, req *admin
 
 @{ if eq .options.Step.HasEdit true }
 // @{.tableComment}修改/新增
-func (c *@{.varName | ToLower}Controller) Edit(ctx context.Context, req *admin.@{.varName}EditReq) (res *admin.@{.varName}EditRes, err error) {
+func (c *@{.varName | LcFirst}Controller) Edit(ctx context.Context, req *admin.@{.varName}EditReq) (res *admin.@{.varName}EditRes, err error) {
 	// 调用服务层的 @{.varName}Edit 方法
 	out, err := service.@{.varName}().@{.varName}Edit(ctx, req.@{.varName}EditInput)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *@{.varName | ToLower}Controller) Edit(ctx context.Context, req *admin.@
 @{end}
 
 // @{.tableComment}状态
-func (c *@{.varName | ToLower}Controller) Status(ctx context.Context, req *admin.@{.varName}StatusReq) (res *admin.@{.varName}StatusRes, err error) {
+func (c *@{.varName | LcFirst}Controller) Status(ctx context.Context, req *admin.@{.varName}StatusReq) (res *admin.@{.varName}StatusRes, err error) {
 	err = service.@{.varName}().@{.varName}Status(ctx, model.@{.varName}StatusInput{
 		@{.varName}Id: req.@{.varName}Id,
 		Field:       req.Field,
@@ -78,7 +78,7 @@ func (c *@{.varName | ToLower}Controller) Status(ctx context.Context, req *admin
 
 @{ if eq .options.Step.HasDel true }
 // @{.tableComment}删除
-func (c *@{.varName | ToLower}Controller) Delete(ctx context.Context, req *admin.@{.varName}DeleteReq) (res *admin.@{.varName}DeleteRes, err error) {
+func (c *@{.varName | LcFirst}Controller) Delete(ctx context.Context, req *admin.@{.varName}DeleteReq) (res *admin.@{.varName}DeleteRes, err error) {
 	err = service.@{.varName}().@{.varName}Delete(ctx, model.@{.varName}DeleteInput{
 		@{.varName}Id: req.@{.varName}Id,
 	})

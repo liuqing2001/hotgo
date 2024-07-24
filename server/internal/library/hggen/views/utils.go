@@ -282,6 +282,18 @@ func ToTSArray(vs []string) string {
 	return fmt.Sprintf("[%s]", strings.Join(formattedStrings, ", "))
 }
 
+// CamelToSnake 驼峰字符串转蛇形字符串（for LiuQing）
+func CamelToSnake(camelStr string) string {
+	var snakeBuilder strings.Builder
+	for i, r := range camelStr {
+		if unicode.IsUpper(r) && i > 0 {
+			snakeBuilder.WriteRune('_')
+		}
+		snakeBuilder.WriteRune(unicode.ToLower(r))
+	}
+	return snakeBuilder.String()
+}
+
 func FormatGo(ctx context.Context, name, code string) (string, error) {
 	path := GetTempGeneratePath(ctx) + "/" + name
 	if err := gfile.PutContents(path, code); err != nil {

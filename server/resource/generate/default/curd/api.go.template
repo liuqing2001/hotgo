@@ -19,7 +19,7 @@ type @{.varName}ListRes struct {
 // DetailReq 获取@{.tableComment}指定信息
 type @{.varName}DetailReq struct {
 	g.Meta `path:"/detail" method:"get" tags:"@{.tableComment}" summary:"获取@{.tableComment}指定信息"`
-	@{.varName}Id int `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空"`
 }
 
 type @{.varName}DetailRes struct {
@@ -35,14 +35,14 @@ type @{.varName}EditReq struct {
 }
 
 type @{.varName}EditRes struct{
-	@{.varName}Id int `json:"@{.varName}_id"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id"`
 }
 @{end}
 
 // StatusReq 更新@{.tableComment}状态
 type @{.varName}StatusReq struct {
 	g.Meta `path:"/status" method:"post" tags:"@{.tableComment}" summary:"更新@{.tableComment}状态"`
-	@{.varName}Id int `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空"`
 	Field       string `json:"field" v:"required#状态字段不能为空" dc:"状态字段"`
 }
 
@@ -52,7 +52,7 @@ type @{.varName}StatusRes struct{}
 // @{.varName}DeleteReq 删除@{.tableComment}
 type @{.varName}DeleteReq struct {
 	g.Meta `path:"/delete" method:"post" tags:"@{.tableComment}" summary:"删除@{.tableComment}"`
-	@{.varName}Id int `json:"@{.varName}_id" v:"required#@{.tableComment}ID不能为空"`
+	@{.varName}Id int `json:"@{.varName | ToSnake}_id" v:"required#@{.tableComment}ID不能为空"`
 }
 
 type @{.varName}DeleteRes struct{}

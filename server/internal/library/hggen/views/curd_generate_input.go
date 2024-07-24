@@ -9,10 +9,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"strings"
-
 	"hotgo/internal/dao"
 	"hotgo/internal/model/input/sysin"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -160,7 +159,7 @@ func (l *gCurd) generateStructFieldDefinition(in *CurdPreviewInput, field *sysin
 
 	addResult := func() []string {
 		result = append(result, " #"+field.GoType)
-		result = append(result, " #"+fmt.Sprintf(tagKey+`json:"%s"`, field.TsName))
+		result = append(result, " #"+fmt.Sprintf(tagKey+`json:"%s"`, CamelToSnake(field.TsName)))
 		result = append(result, " #"+fmt.Sprintf(`dc:"%s"`+tagKey, descriptionTag))
 		return result
 	}

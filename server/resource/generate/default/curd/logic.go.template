@@ -23,8 +23,7 @@ func New@{.varName}() *s@{.varName} {
 // @{.varName}List 获取@{.tableComment}列表
 func (s *s@{.varName}) @{.varName}List(ctx context.Context, in model.@{.varName}ListInput) (out *model.@{.varName}ListOutput, err error) {
 	//1.获得*gdb.Model对象，方便后续调用
-	m := dao.T@{.varName}.Ctx(ctx).Where("is_active", 1)
-	cols := dao.T@{.varName}.Columns()
+	mod := dao.T@{.varName}.Ctx(ctx).Where("is_active", 1)
 
 	//2. 实例化响应结构体
 	out = &model.@{.varName}ListOutput{
@@ -37,9 +36,9 @@ func (s *s@{.varName}) @{.varName}List(ctx context.Context, in model.@{.varName}
     @{.listWhere}
 
 	//3. 分页查询
-	listModel := m.Page(in.Page, in.Size)
+	listModel := mod.Page(in.Page, in.Size)
 	//4. 再查询count，判断有无数据
-	out.Total, err = m.Count()
+	out.Total, err = mod.Count()
 	if err != nil || out.Total == 0 {
 		//解决空数据返回[] 而不是返回nil null的问题
 		out.List = make([]*model.@{.varName}Base, 0)
@@ -61,8 +60,8 @@ func (s *s@{.varName}) @{.varName}Detail(ctx context.Context, in model.@{.varNam
 
 	// 初始化输出结构体
 	out = &model.@{.varName}DetailOutput{}
-	m := dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id)
-	err = m.Scan(out)
+	mod := dao.T@{.varName}.Ctx(ctx).WherePri(in.@{.varName}Id)
+	err = mod.Scan(out)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +109,7 @@ func (s *s@{.varName}) @{.varName}Status(ctx context.Context, in model.@{.varNam
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
 		"is_" + in.Field: val ^ 1,
-	}).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id).Update()
+	}).WherePri(in.@{.varName}Id).Update()
 
 	return err
 }
@@ -130,7 +129,7 @@ func (s *s@{.varName}) @{.varName}Delete(ctx context.Context, in model.@{.varNam
 
 	_, err = dao.T@{.varName}.Ctx(ctx).Data(g.Map{
 		"is_active": 0,
-	}).Where(dao.T@{.varName}.Columns().Id, in.@{.varName}Id).Update()
+	}).WherePri(in.@{.varName}Id).Update()
 
 	return err
 }
